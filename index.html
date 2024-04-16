@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<html lang="en" >
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>按钮点击示例</title>
+<style>
+    body {
+         touch-action: manipulation;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        text-align: center;
+        margin-top: 50px;
+    }
+    .btn {
+        padding: 5px 5px;
+        font-size: 18px;
+        margin: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 3px;
+    }
+    .btn-category1 {
+        background-color: #007bff;
+        color: #fff; 
+    }
+    .btn-category2 {
+        background-color: #28a745;
+        color: #fff;
+    }
+    .btn-category3 {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .input-box {
+        width: 80%;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-size: 20px;
+        border-radius: 5px;
+        resize: vertical; /* 允许垂直方向上的大小调整 */
+        overflow-y: auto; /* 如果内容超出了高度，则显示滚动条 */
+    }
+    .copy-btn, .clear-btn, .delete-all-btn, .delete-row-btn, .copy-row-btn {
+        padding: 5px 10px;
+        font-size: 18px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+    }
+    .copy-btn, .clear-btn {
+        margin-right: 10px;
+    }
+    .copy-success {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #28a745;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 999;
+        display: none;
+    }
+    table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+    }
+    .copy-row-btn, .delete-row-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <button class="btn btn-category1" onclick="addContent('走')">走</button>
+        <button class="btn btn-category1" onclick="addContent('1件')">1件</button>
+        <button class="btn btn-category1" onclick="addContent('2件')">2件</button>
+        <button class="btn btn-category1" onclick="addContent('3件')">3件</button>
+        <button class="btn btn-category1" onclick="addContent('+')">+</button>
+        <button class="btn btn-category1" onclick="addContent('/玫瑰')">/玫瑰</button>
+        <button class="btn btn-category1" onclick="addContent('/爱心')">/爱心</button>
+    </div>
+    <div style="margin-top: 10px;">
+        <button class="btn btn-category2" onclick="addContent('原单')">原单</button>
+        <button class="btn btn-category2" onclick="addContent('新款')">新款</button>
+        <button class="btn btn-category2" onclick="addContent('MLB')">MLB</button>
+        <button class="btn btn-category2" onclick="addContent('Maxmara')">Maxmara</button>
+        <button class="btn btn-category2" onclick="addContent('BOY')">BOY</button>
+        <button class="btn btn-category2" onclick="addContent('Ader')">Ader</button>
+        <button class="btn btn-category2" onclick="addContent('北面')">北面</button>
+        <button class="btn btn-category2" onclick="addContent('迪奥')">迪奥</button>
+        <button class="btn btn-category2" onclick="addContent('斐乐')">斐乐</button>
+    </div>
+    <div style="margin-top: 10px;">
+        <button class="btn btn-category3" onclick="addContent('T恤')">T恤</button>
+        <button class="btn btn-category3" onclick="addContent('卫衣')">卫衣</button>
+        <button class="btn btn-category3" onclick="addContent('衬衫')">衬衫</button>
+        <button class="btn btn-category3" onclick="addContent('外套')">外套</button>
+        <button class="btn btn-category3" onclick="addContent('裤子')">裤子</button>
+        <button class="btn btn-category3" onclick="addContent('牛仔裤')">牛仔裤</button>
+        <button class="btn btn-category3" onclick="addContent('运动裤')">运动裤</button>
+        <button class="btn btn-category3" onclick="addContent('水貂绒真皮拼接外套')">水貂绒真皮拼接外套</button>
+    </div>
+    <br>
+    <textarea class="input-box" id="inputBox" rows="5"></textarea>
+    <br>
+    <button class="copy-btn" onclick="copyContent()">复制</button>
+     <button class="btn btn-category1" onclick="deleteWord()">删除末尾</button>
+     <div></div>
+    <button class="clear-btn" onclick="clearContent()">一键清空</button>
+    <button class="delete-all-btn" onclick="deleteAllRecords()">删除所有记录</button>
+</div>
+<div id="copySuccess" class="copy-success">已复制到剪贴板！</div>
+
+<table id="copyTable">
+    <tr>
+        <th>复制内容</th>
+        <th>复制时间</th>
+        <th>操作</th>
+    </tr>
+</table>
+
+<script>
+    // 在页面加载时从本地存储加载复制记录
+    window.onload = function() {
+        var copiedText = localStorage.getItem('copiedText');
+        if (copiedText) {
+            document.getElementById('inputBox').value = copiedText;
+        }
+
+        var copyTable = document.getElementById('copyTable');
+        var copiedContent = localStorage.getItem('copiedContent');
+        var copiedTime = localStorage.getItem('copiedTime');
+        if (copiedContent && copiedTime) {
+            addRowToTable(copiedContent, copiedTime);
+        }
+    };
+function deleteWord() {
+    var inputBox = document.getElementById('inputBox');
+    var content = inputBox.value.trim(); // 删除前后空格
+    
+    // 如果输入框内没有内容，直接返回
+    if (content === "") return;
+    
+    // 删除最后一个字
+    var updatedContent = content.substring(0, content.length - 1);
+    
+    // 更新输入框内容
+    inputBox.value = updatedContent;
+    autoResizeTextarea(inputBox);
+}
+
+    function addContent(content) {
+        var inputBox = document.getElementById('inputBox');
+        inputBox.value += content;
+        autoResizeTextarea(inputBox);
+    }
+
+    function copyContent() {
+        var inputBox = document.getElementById('inputBox');
+        // 使用自定义的复制方法
+        copyToClipboard(inputBox.value);
+        
+        var copySuccess = document.getElementById('copySuccess');
+        copySuccess.style.display = 'block';
+        setTimeout(function() {
+            copySuccess.style.display = 'none';
+        }, 1500);
+
+        // 存储复制的内容到本地存储
+        localStorage.setItem('copiedText', inputBox.value);
+
+        // 添加到表格中
+        addRowToTable(inputBox.value, new Date().toLocaleString());
+    }
+
+    // 自定义复制方法
+    function copyToClipboard(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+
+    function addRowToTable(content, time) {
+        var copyTable = document.getElementById('copyTable');
+        var newRow = copyTable.insertRow(1); // 插入到第一行，即表头下方
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        cell1.innerHTML = content;
+        cell2.innerHTML = formatDate(time); // 格式化时间
+        var copyBtn = document.createElement('button');
+        copyBtn.textContent = '复制';
+        copyBtn.className = 'copy-row-btn';
+        copyBtn.onclick = function() {
+            copyToClipboard(content);
+            var copySuccess = document.getElementById('copySuccess');
+            copySuccess.style.display = 'block';
+            setTimeout(function() {
+                copySuccess.style.display = 'none';
+            }, 1500);
+        };
+        cell3.appendChild(copyBtn);
+
+        var deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '删除';
+        deleteBtn.className = 'delete-row-btn';
+        deleteBtn.onclick = function() {
+            copyTable.deleteRow(newRow.rowIndex);
+            localStorage.removeItem('copiedContent');
+            localStorage.removeItem('copiedTime');
+        };
+        cell3.appendChild(deleteBtn);
+
+        // 存储到本地存储
+        localStorage.setItem('copiedContent', content);
+        localStorage.setItem('copiedTime', time);
+    }
+
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        // 格式化为 MM-DD HH:mm
+        return (month < 10 ? '0' : '') + month + '-' +
+               (day < 10 ? '0' : '') + day + ' ' +
+               (hours < 10 ? '0' : '') + hours + ':' +
+               (minutes < 10 ? '0' : '') + minutes;
+    }
+
+    function clearContent() {
+        var inputBox = document.getElementById('inputBox');
+        inputBox.value = '';
+
+        // 清空本地存储中的内容
+        localStorage.removeItem('copiedText');
+    }
+
+    function deleteAllRecords() {
+        var copyTable = document.getElementById('copyTable');
+        var rowCount = copyTable.rows.length;
+        // 从最后一行开始删除，以避免索引变化
+        for (var i = rowCount - 1; i > 0; i--) {
+            copyTable.deleteRow(i);
+        }
+        // 清空本地存储中的内容
+        localStorage.removeItem('copiedContent');
+        localStorage.removeItem('copiedTime');
+    }
+
+    function autoResizeTextarea(textarea) {
+        // 检查内容高度是否超过滚动高度
+        if (textarea.scrollHeight > textarea.offsetHeight) {
+            textarea.rows += 1; // 增加一行高度
+        }
+    }
+</script>
+</body>
+</html>
